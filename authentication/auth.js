@@ -2,14 +2,16 @@ const passport = require("passport");
 const JWTStrategy = require("passport-jwt").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJwt;
 const localStrategy = require("passport-local").Strategy;
-require("dotenv").config();
+
 const userModel = require("../models/userModel");
+const CONFIG = require("../config/config");
+const JWT_SECRET = CONFIG.JWT_SECRET;
 
 // Auth endpoints with JWTStrategy
 passport.use(
   new JWTStrategy(
     {
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: JWT_SECRET,
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     },
     async (token, done) => {
@@ -34,12 +36,12 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        const first_name = req.body.first_name;
-        const last_name = req.body.last_name;
+        const firstname = req.body.firstname;
+        const lastname = req.body.lastname;
         const user = await userModel.create({
           email,
-          first_name,
-          last_name,
+          firstname,
+          lastname,
           password,
         });
 
