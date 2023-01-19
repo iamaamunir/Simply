@@ -13,19 +13,26 @@ const userSchema = new Schema({
   },
   username: {
     type: String,
+    unique: true,
   },
   password: {
     type: String,
+    unique: true,
   },
   email: {
     type: String,
   },
   phone_number: {
-    type: Number,
+    type: String,
   },
-  birthday: {
+  dob: {
     type: Date,
   },
+  sex: {
+    type: String,
+  },
+  following: [{}],
+  followers: [{}],
 });
 
 userSchema.pre("save", async function (next) {

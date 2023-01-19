@@ -5,7 +5,8 @@ const JWT_SECRET = CONFIG.JWT_SECRET;
 
 exports.signUp = async (req, res, next) => {
   try {
-    res.status(201).send({
+    res.status(201).json({
+      status: "success",
       user: req.user,
     });
   } catch (err) {
