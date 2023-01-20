@@ -7,7 +7,11 @@ exports.signUp = async (req, res, next) => {
   try {
     res.status(201).json({
       status: "success",
-      user: req.user,
+      user: {
+        firstname: req.user.firstname,
+        lastname: req.user.lastname,
+        username: req.user.username,
+      },
     });
   } catch (err) {
     return next(err);
