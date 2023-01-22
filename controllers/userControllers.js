@@ -11,6 +11,7 @@ exports.signUp = async (req, res, next) => {
         firstname: req.user.firstname,
         lastname: req.user.lastname,
         username: req.user.username,
+        email: req.user.email,
       },
     });
   } catch (err) {

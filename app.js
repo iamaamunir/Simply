@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const passport = require("passport");
 require("./authentication/auth");
 
 const app = express();
@@ -11,8 +12,13 @@ const userRouter = require("./routes/userRoutes");
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use("/api/v1", postRouter);
 app.use("/api/v1", userRouter);
+
+app.use(
+  "/api/v1",
+  passport.authenticate("jwt", { session: false }),
+  postRouter
+);
 
 //HOME ROUTES
 app.get("/", (req, res) => {
@@ -22,4 +28,8 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500);
+  res.json({ error: err });
+});
 module.exports = app;

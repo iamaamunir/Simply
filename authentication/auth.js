@@ -38,11 +38,13 @@ passport.use(
       try {
         const firstname = req.body.firstname;
         const lastname = req.body.lastname;
+        const username = req.body.username;
         const user = await userModel.create({
           email,
           firstname,
           lastname,
           password,
+          username,
         });
 
         return done(null, user);
@@ -57,12 +59,12 @@ passport.use(
   "login",
   new localStrategy(
     {
-      usernameField: "email",
+      usernameField: "username",
       passwordField: "password",
     },
-    async (email, password, done) => {
+    async (username, password, done) => {
       try {
-        const user = await userModel.findOne({ email });
+        const user = await userModel.findOne({ username });
         if (!user) {
           return done(null, false, { message: "User not found" });
         }

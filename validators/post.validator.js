@@ -3,11 +3,18 @@ const postValidator = Joi.object({
   body: Joi.string().alphanum().max(500).trim().required(),
   createAt: Joi.date().min("now").iso().timestamp(),
   updatedAt: Joi.date().greater("now").iso().timestamp(),
-  activity: Joi.string().valid("happy", "hopeful", "exicted", "sad"),
+  feeling: Joi.string().valid("happy", "hopeful", "exicted", "sad"),
   location: Joi.string(),
+  activity: Joi.string(),
   tagFriends: Joi.array().items(
     Joi.object({
       username: Joi.string().alphanum().min(5).max(9).case("lower").trim(),
+    })
+  ),
+  reactions: Joi.array().items(
+    Joi.object({
+      username: Joi.string().alphanum().min(5).max(9).case("lower").trim(),
+      reaction: Joi.string().valid("like", "angry", "love", "sad", "happy"),
     })
   ),
 });
