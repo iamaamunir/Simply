@@ -5,7 +5,7 @@ exports.createPost = async function (req, res, next) {
   try {
     const {
       body,
-      tagFriends,
+
       location,
       activity,
       createdAt,
@@ -14,16 +14,28 @@ exports.createPost = async function (req, res, next) {
       reactions,
       feeling,
     } = req.body;
+    let friendsUsername;
+    if (req.body.tagFriends) {
+      const tagFriends = req.body.tagFriends;
 
-    const friends = tagFriends.map((data) => data.username);
-    const users = await userModel.find({ username: friends });
-    const username = users.map((u) => u.username);
+      const friends = tagFriends.toString();
+
+      const users = await userModel.find({ username: tagFriends });
+
+      friendsUsername = users
+        .map((el) => el.username)
+        .toString()
+        .split(",");
+      console.log(friendsUsername);
+    } else {
+      friendsUsername = [];
+    }
 
     const mainUser = await userModel.findById(req.user._id);
 
     const postDetails = {
       body: body,
-      tagFriends: username.toString(),
+      tagFriends: friendsUsername,
       location: location,
       activity: activity,
       images: images,
@@ -31,7 +43,6 @@ exports.createPost = async function (req, res, next) {
       createdAt: createdAt,
       feeling: feeling,
       author: { _id: req.user._id },
-      reaction,
     };
     const post = new postModel(postDetails);
     const savedPost = await post.save();
@@ -44,14 +55,39 @@ exports.createPost = async function (req, res, next) {
     });
   } catch (error) {
     error.type = "Not Found";
-    res.status(404).json({ status: "fail", message: error });
     next(error);
+    // return res.status(404).json({ status: "fail", message: error });
   }
 };
 
-exports.getAllPost = function (req, res) {
-  res.status(500).json({
-    status: "fail",
-    message: "in progress",
-  });
+exports.getAllPost = async function (req, res, next) {
+  try {
+    const limit = parseInt(req.query.limit);
+    if (limit) {
+      const posts = await postModel
+        .find({ author: { _id: req.user._id } })
+        .limit(limit)
+        .populate("author", "username");
+      res.status(200).json({
+        status: "success",
+        data: {
+          posts,
+        },
+      });
+    } else {
+      const posts = await postModel
+        .find({ author: { _id: req.user._id } })
+        .populate("author", "username");
+      res.status(200).json({
+        status: "success",
+        data: {
+          posts,
+        },
+      });
+    }
+  } catch (error) {
+    error.type = "Not Found";
+    next(error);
+    console.log(error);
+  }
 };
