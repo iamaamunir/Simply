@@ -12,6 +12,13 @@ const userRouter = require("./routes/userRoutes");
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use((error, req, res, next) => {
+  if (error.type == "Not Found") {
+    res.status(404).json({ status: "fail", message: "Not Found" });
+  }
+  next();
+});
+
 app.use("/api/v1", userRouter);
 
 app.use(

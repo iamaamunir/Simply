@@ -1,10 +1,10 @@
 const postModel = require("../models/postModel");
 const userModel = require("../models/userModel");
 
-exports.createPost = async function (req, res) {
+exports.createPost = async function (req, res, next) {
   try {
     const {
-      post,
+      body,
       tagFriends,
       location,
       activity,
@@ -14,12 +14,15 @@ exports.createPost = async function (req, res) {
       reactions,
       feeling,
     } = req.body;
+
     const friends = tagFriends.map((data) => data.username);
     const users = await userModel.find({ username: friends });
     const username = users.map((u) => u.username);
 
-    const postDetails = await postModel.create({
-      post: post,
+    const mainUser = await userModel.findById(req.user._id);
+
+    const postDetails = {
+      body: body,
       tagFriends: username.toString(),
       location: location,
       activity: activity,
@@ -27,14 +30,22 @@ exports.createPost = async function (req, res) {
       videos: videos,
       createdAt: createdAt,
       feeling: feeling,
-    });
-    res.status(201).json({
+      author: { _id: req.user._id },
+      reaction,
+    };
+    const post = new postModel(postDetails);
+    const savedPost = await post.save();
+    mainUser.posts = mainUser.posts.concat(savedPost._id);
+    await mainUser.save();
+
+    return res.status(201).json({
       status: "success",
-      data: postDetails,
+      message: "Post successfully created.",
     });
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({ status: "fail", error: err });
+  } catch (error) {
+    error.type = "Not Found";
+    res.status(404).json({ status: "fail", message: error });
+    next(error);
   }
 };
 

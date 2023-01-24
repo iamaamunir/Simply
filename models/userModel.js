@@ -33,6 +33,12 @@ const userSchema = new Schema({
   },
   following: [{}],
   followers: [{}],
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "posts",
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {

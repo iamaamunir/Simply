@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
-  post: {
+  body: {
     type: String,
     required: true,
   },
@@ -15,13 +15,19 @@ const postSchema = new Schema({
     type: Date,
   },
   // create author field here
+  author: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+    },
+  ],
   tagFriends: [String],
   activity: {
     type: String,
   },
   feeling: {
-    // use enum instead of joi valid which is not working
     type: String,
+    enum: ["like", "angry", "love", "sad", "happy"],
   },
   location: {
     type: String,

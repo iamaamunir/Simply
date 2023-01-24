@@ -14,7 +14,7 @@ const postValidator = Joi.object({
   reactions: Joi.array().items(
     Joi.object({
       username: Joi.string().alphanum().min(5).max(9).case("lower").trim(),
-      reaction: Joi.string().valid("like", "angry", "love", "sad", "happy"),
+      
     })
   ),
 });
