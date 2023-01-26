@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const random = require("mongoose-random");
 const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
@@ -42,5 +42,7 @@ const postSchema = new Schema({
     },
   ],
 });
+
+// postSchema.plugin(random, { path: "r" });
 
 module.exports = mongoose.model("posts", postSchema);
