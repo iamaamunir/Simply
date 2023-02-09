@@ -9,7 +9,7 @@ const userValidator = Joi.object({
     .required(),
   firstname: Joi.string()
     .pattern(new RegExp("^[a-zA-Z]"))
-    .min(5)
+    .min(1)
     .max(25)
     .required(),
   lastname: Joi.string()
@@ -33,7 +33,7 @@ const userValidator = Joi.object({
     // .messages({ "string.pattern.base": `Phone number must have 11 digits.` })
     .required(),
   dob: Joi.date()
-    .max("01-01-2008")
+    .min("2008-01-01")
     .iso()
     .messages({
       "date.format": `Date format is YYYY-MM-DD`,
