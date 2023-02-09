@@ -12,6 +12,8 @@ postRouter
   .route("/post/:id")
   .patch(postControllers.editPost)
   .delete(postControllers.deletePost);
+
+postRouter.route("/post/react/:id").patch(postControllers.reactToPost);
 postRouter.route("/newsfeed").get(postControllers.newsFeed);
 postRouter.route("/newsFeed/:id").get(postControllers.newsFeedById);
 

@@ -1,5 +1,5 @@
-const postModel = require("../models/postModel");
-const userModel = require("../models/userModel");
+const Post = require("../models/postModel");
+const User = require("../models/userModel");
 
 exports.createPost = async function (req, res, next) {
   try {
@@ -18,7 +18,7 @@ exports.createPost = async function (req, res, next) {
     if (req.body.tagFriends) {
       const tagFriends = req.body.tagFriends;
 
-      const users = await userModel.find({ username: tagFriends });
+      const users = await User.find({ username: tagFriends });
 
       friendsUsername = users
         .map((el) => el.username)
@@ -28,7 +28,7 @@ exports.createPost = async function (req, res, next) {
       friendsUsername = [];
     }
 
-    const mainUser = await userModel.findById(req.user._id);
+    const mainUser = await User.findById(req.user._id);
 
     const postDetails = {
       body: body,
@@ -41,7 +41,7 @@ exports.createPost = async function (req, res, next) {
       feeling: feeling,
       author: { _id: req.user._id },
     };
-    const post = new postModel(postDetails);
+    const post = new Post(postDetails);
     const savedPost = await post.save();
     mainUser.posts = mainUser.posts.concat(savedPost._id);
     await mainUser.save();
@@ -61,8 +61,7 @@ exports.getAllPost = async function (req, res, next) {
   try {
     const limit = parseInt(req.query.limit);
     if (limit) {
-      const posts = await postModel
-        .find({ author: { _id: req.user._id } })
+      const posts = await Post.find({ author: { _id: req.user._id } })
         .limit(limit)
         .populate("author", "username");
       res.status(200).json({
@@ -72,9 +71,10 @@ exports.getAllPost = async function (req, res, next) {
         },
       });
     } else {
-      const posts = await postModel
-        .find({ author: { _id: req.user._id } })
-        .populate("author", "username");
+      const posts = await Post.find({ author: { _id: req.user._id } }).populate(
+        "author",
+        "username"
+      );
       res.status(200).json({
         status: "success",
         data: {
@@ -93,8 +93,7 @@ exports.newsFeed = async function (req, res, next) {
   try {
     const limit = parseInt(req.query.limit);
     if (limit) {
-      const posts = await postModel
-        .find()
+      const posts = await Post.find()
         .limit(limit)
         .populate("author", "username");
       res.status(200).json({
@@ -104,7 +103,7 @@ exports.newsFeed = async function (req, res, next) {
         },
       });
     } else {
-      const posts = await postModel.find().populate("author", "username");
+      const posts = await Post.find().populate("author", "username");
       res.status(200).json({
         status: "success",
         data: {
@@ -122,9 +121,7 @@ exports.newsFeed = async function (req, res, next) {
 exports.newsFeedById = async function (req, res, next) {
   try {
     const id = req.params.id;
-    const post = await postModel
-      .find({ _id: id })
-      .populate("author", "username");
+    const post = await Post.find({ _id: id }).populate("author", "username");
     res.status(200).json({
       status: "success",
       data: {
@@ -147,9 +144,9 @@ exports.editPost = async function (req, res, next) {
     const excludedFields = ["createAt"];
     excludedFields.forEach((el) => delete bodyObj[el]);
 
-    const currentUser = await userModel.find({ _id: req.user._id });
+    const currentUser = await User.find({ _id: req.user._id });
     if (currentUser) {
-      await postModel.findByIdAndUpdate(id, bodyObj, {
+      await Post.findByIdAndUpdate(id, bodyObj, {
         new: true,
         runValidators: true,
       });
@@ -173,9 +170,9 @@ exports.editPost = async function (req, res, next) {
 exports.deletePost = async function (req, res, next) {
   try {
     const id = req.params.id;
-    const currentUser = await userModel.find({ _id: req.user._id });
+    const currentUser = await User.find({ _id: req.user._id });
     if (currentUser) {
-      await postModel.findByIdAndDelete(id);
+      await Post.findByIdAndDelete(id);
 
       return res.status(200).json({
         status: "success",
@@ -186,6 +183,40 @@ exports.deletePost = async function (req, res, next) {
         status: "fail",
         message: "Unauthorized",
       });
+    }
+  } catch (error) {
+    error.type = "Not Found";
+    next(error);
+    console.log(error);
+  }
+};
+
+exports.reactToPost = async function (req, res, next) {
+  try {
+    const id = req.params.id;
+    const reaction = req.body;
+    const post = await Post.findById(id);
+    const currentUser = req.user.email;
+    const user = await User.find({ email: currentUser });
+
+    const username = user.map((el) => el.username).toString();
+
+    const reactor = reaction.reactions.map((el) => el.username).toString();
+    post.reactions.forEach(function (obj) {
+      if (obj.username === reactor) {
+        const filtered = post.reactions.filter(function (el) {
+          return el.username !== reactor;
+        });
+        post.reactions = filtered;
+      }
+    });
+    if (username === reactor) {
+      post.reactions.push(reaction.reactions[0]);
+      await post.save();
+
+      res.status(200).json({ status: "success" });
+    } else {
+      res.status(400).json({ status: "fail" });
     }
   } catch (error) {
     error.type = "Not Found";

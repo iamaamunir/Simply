@@ -38,9 +38,13 @@ const postSchema = new Schema({
     // maybe i will remodel this array.
     {
       username: String,
-      reaction: String,
+      reaction: {
+        type: String,
+        enum: ["like", "sad", "happy", "funny", "love"],
+      },
     },
   ],
+  numOfReactions: Number,
 });
 
 // postSchema.plugin(random, { path: "r" });
