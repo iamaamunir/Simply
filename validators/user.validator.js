@@ -33,7 +33,7 @@ const userValidator = Joi.object({
     // .messages({ "string.pattern.base": `Phone number must have 11 digits.` })
     .required(),
   dob: Joi.date()
-    .min("2008-01-01")
+    .max("2008-01-01")
     .iso()
     .messages({
       "date.format": `Date format is YYYY-MM-DD`,
