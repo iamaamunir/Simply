@@ -1,17 +1,17 @@
 const Post = require("../models/postModel");
 const User = require("../models/userModel");
+const Comment = require("../models/commentModel");
 
 exports.createPost = async function (req, res, next) {
   try {
     const {
       body,
-
       location,
       activity,
       createdAt,
       images,
       videos,
-
+      comment,
       feeling,
     } = req.body;
     let friendsUsername;
@@ -19,6 +19,13 @@ exports.createPost = async function (req, res, next) {
       const tagFriends = req.body.tagFriends;
 
       const users = await User.find({ username: tagFriends });
+
+      if (users === []) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Users don't exist",
+        });
+      }
 
       friendsUsername = users
         .map((el) => el.username)
@@ -222,5 +229,41 @@ exports.reactToPost = async function (req, res, next) {
     error.type = "Not Found";
     next(error);
     console.log(error);
+  }
+};
+
+exports.addComment = async function (req, res, next) {
+  try {
+    const postId = req.params.id;
+    const { text } = req.body;
+    const currentUser = await User.find({ _id: req.user._id });
+
+    if (currentUser) {
+      const post = await Post.findById(postId);
+      if (!post) {
+        return res.status(404).json({
+          status: "fail",
+          message: "Post not available",
+        });
+      }
+
+      const comment = new Comment({
+        text: text,
+        post: post._id,
+        user: post.author,
+      });
+      await comment.save();
+      post.comments.push(comment);
+
+      await post.save();
+      return res.status(204).json({ status: "success", data: post });
+    } else {
+      return res.status(400).json({
+        status: "fail",
+        message: "You have to be logged in before you can comment",
+      });
+    }
+  } catch (error) {
+    next(error);
   }
 };
