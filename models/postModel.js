@@ -15,12 +15,11 @@ const postSchema = new Schema({
     type: Date,
   },
   // create author field here
-  author: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-    },
-  ],
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+  },
+
   tagFriends: [String],
   activity: {
     type: String,
@@ -32,6 +31,7 @@ const postSchema = new Schema({
   location: {
     type: String,
   },
+  comments: [String],
   images: [{}],
   videos: [{}],
   reactions: [
