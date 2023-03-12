@@ -31,8 +31,18 @@ const userSchema = new Schema({
   sex: {
     type: String,
   },
-  following: [{}],
-  followers: [{}],
+  following: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "following",
+    },
+  ],
+  followers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "followers",
+    },
+  ],
   posts: [
     {
       type: mongoose.Schema.Types.ObjectId,

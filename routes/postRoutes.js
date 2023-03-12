@@ -18,5 +18,4 @@ postRouter.route("/newsfeed").get(postControllers.newsFeed);
 postRouter.route("/newsFeed/:id").get(postControllers.newsFeedById);
 
 postRouter.route("/post/comment/:id").post(postControllers.addComment);
-
 module.exports = postRouter;

@@ -6,6 +6,7 @@ require("./authentication/auth");
 const app = express();
 const postRouter = require("./routes/postRoutes");
 const userRouter = require("./routes/userRoutes");
+const followerRouter = require("./routes/followRoute");
 
 // MIDDLEWARES
 
@@ -20,6 +21,11 @@ app.use((error, req, res, next) => {
 });
 
 app.use("/api/v1", userRouter);
+app.use(
+  "/api/v1",
+  passport.authenticate("jwt", { session: false }),
+  followerRouter
+);
 
 app.use(
   "/api/v1",

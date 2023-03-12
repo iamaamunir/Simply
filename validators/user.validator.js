@@ -14,7 +14,7 @@ const userValidator = Joi.object({
     .required(),
   lastname: Joi.string()
     .pattern(new RegExp("^[a-zA-Z]"))
-    .min(5)
+    .min(1)
     .max(25)
     .required(),
   password: Joi.string()
